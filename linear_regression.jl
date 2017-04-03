@@ -26,11 +26,9 @@ function runner(ps, m₀, b₀, γ, steps)
     m, b, = m₀, b₀
     for i in 1:steps
         m, b = step_gradient(ps, m, b, γ)
-        #println(MSE(ps, b, m))
     end
     b, m
 end
-
 
 function main()
     points = Matrix(readtable("./data.csv", header=false))
