@@ -18,7 +18,7 @@ end
 
 function step_gradient(ps, m, b, γ)
     h,  w  = size(ps)
-    ∇b, ∇m = ∂MSE_∂b(ps, m, b), ∂MSE_∂m(ps, m, b)
+    ∇m, ∇b = ∂MSE_∂m(ps, m, b), ∂MSE_∂b(ps, m, b)
     m,  b  = m - γ * ∇m, b - γ * ∇b
 end
 
@@ -27,7 +27,7 @@ function runner(ps, m₀, b₀, γ, steps)
     for i in 1:steps
         m, b = step_gradient(ps, m, b, γ)
     end
-    b, m
+    m, b
 end
 
 function main()
@@ -36,7 +36,7 @@ function main()
     m₀, b₀ = 0, 0
     steps  = 1000
     println("Starting gradient descent at b = $(b₀), m = $(m₀), error = $(MSE(points,m₀,b₀))")
-    b, m = runner(points, m₀, b₀, γ, steps)
+    m, b = runner(points, m₀, b₀, γ, steps)
     println("After $(steps) iterations b = $(b), m = $(m), error = $(MSE(points,m,b))")
 end
 
