@@ -20,7 +20,10 @@ end
 function step_gradient(ps, m, b, γ)
     h,  w  = size(ps)
     ∇m, ∇b = ∂MSE_∂m(ps, m, b), ∂MSE_∂b(ps, m, b)
-    m,  b  = m - γ * ∇m, b - γ * ∇b
+    Δm, Δb = γ * ∇m, γ * ∇b
+    m = Δm == NaN ? m : m - Δm
+    b = Δb == NaN ? b : b - Δb
+    m, b
 end
 
 function runner(ps, m₀, b₀, γ, steps)
