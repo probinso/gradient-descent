@@ -1,5 +1,6 @@
 #!/usr/bin/env julia
-using DataFrames
+
+using CSV
 
 function MSE(ps, m,  b)
     h, w = size(ps)
@@ -31,7 +32,7 @@ function runner(ps, m₀, b₀, γ, steps)
 end
 
 function main()
-    points = Matrix(readtable("./data.csv", header=false))
+    points = Matrix(CSV.read("./data.csv", header=false, nullable=false))
     γ = 0.0001
     m₀, b₀ = 0, 0
     steps  = 1000
