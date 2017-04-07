@@ -45,10 +45,10 @@ end
 
 function step_gradient(ps, coef, γ)
     h,  w  = size(ps)
-    Δcoef = γ * [∂MSE_∂j(ps, j, coef) for (j, _) in enumerate(coef)]
-    Δcoef = map((Δ) -> Δ == NaN ? 0 : Δ, Δcoef)
+    ∇coef = [∂MSE_∂j(ps, j, coef) for (j, _) in enumerate(coef)]
+    Δcoef = map((Δ) -> Δ == NaN ? 0 : Δ, γ * ∇coef)
 
-    ∇coef = [coef[i] - Δ for (i, Δ) in enumerate(Δcoef)]
+    [coef[i] - Δ for (i, Δ) in enumerate(Δcoef)]
 end
 
 function runner(ps, coef, γ, steps)
