@@ -29,7 +29,11 @@ end
 function runner(ps, m₀, b₀, γ, steps)
     m, b, = m₀, b₀
     for i in 1:steps
-        m, b = step_gradient(ps, m, b, γ)
+        x, y = step_gradient(ps, m, b, γ)
+        if (m,b) == (x, y)
+            break
+        end
+        m, b = x, y
     end
     m, b
 end
