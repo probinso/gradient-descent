@@ -43,12 +43,6 @@ function ∂MSE_∂j(ps, j, coef)
     mean((-2.* K .* A) .+ (2 .* A .^ 2 .* coef[j]))
 end
 
-#=
-@show points = [2 3; 4 7]
-STEP = ∂MSE_∂j(points, 2, [9, 10, 11, 12])
-@show STEP
-=#
-
 function step_gradient(ps, coef, γ)
     h,  w  = size(ps)
     Δcoef = γ * [∂MSE_∂j(ps, j, coef) for (j, _) in enumerate(coef)]
@@ -63,11 +57,10 @@ function runner(ps, coef, γ, steps)
         if tump == coef
             break
         end
-        coef = tump
+        @show coef = tump
     end
     coef
 end
-
 
 function runner(ps, m₀, b₀, γ, steps)
     m, b, = m₀, b₀
@@ -95,7 +88,8 @@ function main()
     points = Matrix(CSV.read("./data.csv", header=false, nullable=false))
     γ = 0.0001
     steps = 1000
-    coef  = [0, 0]
+    degree = 3
+    coef  = [0 for i in 1:degree]
     println("Starting gradient descent at coef = $(coef)")
     coef  = runner(points, coef, γ, steps)
     println("After $(steps) iterations $(coef)")
