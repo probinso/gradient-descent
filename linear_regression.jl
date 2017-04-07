@@ -2,31 +2,21 @@
 
 using CSV
 
-function MSE(ps, m,  b)
+function MSE{T <: Real}(ps::Matrix{T}, coef::Vector{T})
     h, w = size(ps)
-    mean( ([ps' ; ones(h)']' * [-m ; 1 ; -b]) .^ 2)
+    degree = size(coef)[1]
+
+    x⃗ = ps * [1, 0]
+    y⃗ = ps * [0, 1]
+    M = [r ^ c for r in x⃗, c in 0:degree-1]
+
+    mean(sum(([M y⃗]' .* [-1 * coef; 1])', 2) .^ 2)
 end
 
-function ∂MSE_∂m(ps, m, b)
-    h, w = size(ps)
-    -2 * mean(ps * [1; 0] .* [ps' ; ones(h)']' * [-m ; 1 ; -b])
-end
-
-function ∂MSE_∂b(ps, m, b)
-    h, w = size(ps)
-    -2 * mean([ps' ; ones(h)']' * [-m ; 1 ; -b])
-end
-
-function step_gradient(ps, m, b, γ)
-    h,  w  = size(ps)
-    ∇m, ∇b = ∂MSE_∂m(ps, m, b), ∂MSE_∂b(ps, m, b)
-    Δm, Δb = γ * ∇m, γ * ∇b
-    m = Δm == NaN ? m : m - Δm
-    b = Δb == NaN ? b : b - Δb
-    m, b
-end
-
-function ∂MSE_∂j(ps, j, coef)
+function ∂MSE_∂j{T <: Real}(ps::Matrix{T}, j::Int, coef::Vector{T})
+    #=
+    Gradient wrt coeficient at index j | given points
+    =#
     degree = size(coef)[1]
     target = [1.0 * convert(Float64, (i == j)) for i in 1:degree]
     others = 1.0 .- target
@@ -43,57 +33,34 @@ function ∂MSE_∂j(ps, j, coef)
     mean((-2.* K .* A) .+ (2 .* A .^ 2 .* coef[j]))
 end
 
-function step_gradient(ps, coef, γ)
+function step_gradient{T <: Real}(ps::Matrix{T}, coef::Vector{T}, γ::T)
     h,  w  = size(ps)
     ∇coef = [∂MSE_∂j(ps, j, coef) for (j, _) in enumerate(coef)]
     Δcoef = map((Δ) -> Δ == NaN ? 0 : Δ, γ * ∇coef)
 
-    [coef[i] - Δ for (i, Δ) in enumerate(Δcoef)]
+    convert(Vector{T}, [coef[i] - Δ for (i, Δ) in enumerate(Δcoef)])
 end
 
-function runner(ps, coef, γ, steps)
+function runner{T <: Real}(ps::Matrix{T}, coef::Vector{T}, γ::T, steps::Int)
     for i in 1:steps
         tump = step_gradient(ps, coef, γ)
         if tump == coef
             break
         end
-        @show coef = tump
+        coef = tump
     end
     coef
 end
 
-function runner(ps, m₀, b₀, γ, steps)
-    m, b, = m₀, b₀
-    for i in 1:steps
-        x, y = step_gradient(ps, m, b, γ)
-        if (m,b) == (x, y)
-            break
-        end
-        m, b = x, y
-    end
-    m, b
-end
-
-function mainx()
-    points = Matrix(CSV.read("./data.csv", header=false, nullable=false))
-    γ = 0.0001
-    m₀, b₀ = 0, 0
-    steps  = 1000
-    println("Starting gradient descent at b = $(b₀), m = $(m₀), error = $(MSE(points,m₀,b₀))")
-    m, b = runner(points, m₀, b₀, γ, steps)
-    println("After $(steps) iterations b = $(b), m = $(m), error = $(MSE(points,m,b))")
-end
-
 function main()
     points = Matrix(CSV.read("./data.csv", header=false, nullable=false))
-    γ = 0.0001
-    steps = 1000
+    γ      = 0.0001
+    steps  = 1000
     degree = 2
-    coef  = [0 for i in 1:degree]
-    println("Starting gradient descent at coef = $(coef)")
+    coef   = convert(Vector{Float64}, [0.0 for i in 1:degree])
+    println("Starting gradient descent at coef = $(coef), MSE = $(MSE(points, coef))")
     coef  = runner(points, coef, γ, steps)
-    println("After $(steps) iterations $(coef)")
+    println("After $(steps) iterations $(coef), MSE = $(MSE(points, coef))")
 end
 
 main()
-mainx()
