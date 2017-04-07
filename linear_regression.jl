@@ -1,6 +1,6 @@
 #!/usr/bin/env julia
 
-using CSV
+using DataFrames
 
 function MSE{T <: Real}(ps::Matrix{T}, coef::Vector{T})
     h, w = size(ps)
@@ -53,11 +53,11 @@ function runner{T <: Real}(ps::Matrix{T}, coef::Vector{T}, γ::T, steps::Int)
 end
 
 function main()
-    points = Matrix(CSV.read("./data.csv", header=false, nullable=false))
+    points = convert(Matrix{Real}, DataFrames.readtable("./data.csv", header=false))
     γ      = 0.0001
     steps  = 1000
     degree = 2
-    coef   = convert(Vector{Float64}, [0.0 for i in 1:degree])
+    coef   = convert(Vector{Real}, zeros(degree))
     println("Starting gradient descent at coef = $(coef), MSE = $(MSE(points, coef))")
     coef  = runner(points, coef, γ, steps)
     println("After $(steps) iterations $(coef), MSE = $(MSE(points, coef))")
