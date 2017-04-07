@@ -31,15 +31,15 @@ function ∂MSE_∂j(ps, j, coef)
     target = [1.0 * convert(Float64, (i == j)) for i in 1:degree]
     others = 1.0 .- target
 
-    Xs = ps * [1, 0]
-    Ys = ps * [0, 1]
-    M  = [r ^ c for r in Xs, c in 0:degree-1]
+    x⃗ = ps * [1, 0]
+    y⃗ = ps * [0, 1]
+    M = [r ^ c for r in x⃗, c in 0:degree-1]
 
     vars = [-1 * others .* coef; 1]
-    K  = sum(([M Ys]' .* vars)', 2)
+    K  = sum(([M y⃗]' .* vars)', 2)
 
     vars = [target; 0]
-    A  = sum(([M Ys]' .* vars)', 2)
+    A  = sum(([M y⃗]' .* vars)', 2)
     mean((-2.* K .* A) .+ (2 .* A .^ 2 .* coef[j]))
 end
 
