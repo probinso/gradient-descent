@@ -2,9 +2,10 @@
 
 using DataFrames
 
+len(V::Vector) = size(V)[1]
+
 function MSE{T <: Real}(ps::Matrix{T}, coef::Vector{T})
-    h, w = size(ps)
-    degree = size(coef)[1]
+    degree = len(coef)
 
     x⃗ = ps * [1, 0]
     y⃗ = ps * [0, 1]
@@ -17,7 +18,7 @@ function ∂MSE_∂j{T <: Real}(ps::Matrix{T}, j::Int, coef::Vector{T})
     #=
     Gradient wrt coeficient at index j | given points
     =#
-    degree = size(coef)[1]
+    degree = len(coef)
     target = [1.0 * convert(Float64, (i == j)) for i in 1:degree]
     others = 1.0 .- target
 
@@ -34,7 +35,6 @@ function ∂MSE_∂j{T <: Real}(ps::Matrix{T}, j::Int, coef::Vector{T})
 end
 
 function step_gradient{T <: Real}(ps::Matrix{T}, coef::Vector{T}, γ::T)
-    h,  w  = size(ps)
     ∇coef = [∂MSE_∂j(ps, j, coef) for (j, _) in enumerate(coef)]
     Δcoef = map((Δ) -> Δ == NaN ? 0 : Δ, γ * ∇coef)
 
@@ -59,7 +59,7 @@ function main()
     degree = 2
     coef   = convert(Vector{Real}, zeros(degree))
     println("Starting gradient descent at coef = $(coef), MSE = $(MSE(points, coef))")
-    coef  = runner(points, coef, γ, steps)
+    coef   = runner(points, coef, γ, steps)
     println("After $(steps) iterations $(coef), MSE = $(MSE(points, coef))")
 end
 
