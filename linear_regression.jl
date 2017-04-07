@@ -88,7 +88,7 @@ function main()
     points = Matrix(CSV.read("./data.csv", header=false, nullable=false))
     γ = 0.0001
     steps = 1000
-    degree = 3
+    degree = 2
     coef  = [0 for i in 1:degree]
     println("Starting gradient descent at coef = $(coef)")
     coef  = runner(points, coef, γ, steps)
