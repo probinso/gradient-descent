@@ -34,7 +34,6 @@ function ∂MSE_∂j{T <: BigFloat}(ps::Matrix{T}, j::Int, coef::Vector{T})
 end
 
 function step_gradient{T <: BigFloat}(ps::Matrix{T}, coef::Vector{T}, γ::T)
-
     ∇coef::Vector{T} = []
     for (j, _) in enumerate(coef)
         ∇ = ∂MSE_∂j(ps, j, coef)
@@ -59,10 +58,6 @@ end
 function main()
     points = convert(Matrix{BigFloat},
                      DataFrames.readtable("./yield.csv", header=false))
-    #points::Matrix{BigFloat} =
-    #    [-5  86; -4  57; -3  34; -2  17; -1 6;
-    #     0  1; 1  2; 2  9; 3 22; 4 41; 5 66]
-    #coef::Vector{BigFloat} = [1, -2, 3]
 
     γ::BigFloat = 0.0001
     Z = convert(Vector{BigFloat}, rand((20)))
