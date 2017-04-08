@@ -15,9 +15,7 @@ function MSE{T <: Real}(ps::Matrix{T}, coef::Vector{T})
 end
 
 function ∂MSE_∂j{T <: Real}(ps::Matrix{T}, j::Int, coef::Vector{T})
-    #=
-    Gradient wrt coeficient at index j | given points
-    =#
+    # Gradient wrt coeficient at index j | given points
     degree = len(coef)
     target = [1.0 * convert(Float64, (i == j)) for i in 1:degree]
     others = 1.0 .- target
