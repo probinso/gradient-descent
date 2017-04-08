@@ -34,14 +34,8 @@ function ∂MSE_∂j{T <: Real}(ps::Matrix{T}, j::Int, coef::Vector{T})
 end
 
 function step_gradient{T <: Real}(ps::Matrix{T}, coef::Vector{T}, γ::T)
-    ∇coef::Vector{T} = []
-    for (j, _) in enumerate(coef)
-        ∇ = ∂MSE_∂j(ps, j, coef)
-        push!(∇coef, ∇)
-    end
-
+    ∇coef::Vector{T} = [∂MSE_∂j(ps, j, coef) for (j, _) in enumerate(coef)]
     Δcoef = map((Δ) -> Δ == NaN ? 0 : Δ, rand() * γ * ∇coef)
-
     convert(Vector{T}, [coef[i] - Δ for (i, Δ) in enumerate(Δcoef)])
 end
 
