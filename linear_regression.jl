@@ -4,7 +4,7 @@ using DataFrames
 
 len(V::Vector) = size(V)[1]
 
-function MSE{T <: BigFloat}(ps::Matrix{T}, coef::Vector{T})
+function MSE{T <: Real}(ps::Matrix{T}, coef::Vector{T})
     degree = len(coef)
 
     x⃗ = ps * [1, 0]
@@ -14,10 +14,10 @@ function MSE{T <: BigFloat}(ps::Matrix{T}, coef::Vector{T})
     mean(sum(([M y⃗]' .* [-1 * coef; 1])', 2) .^ 2)
 end
 
-function ∂MSE_∂j{T <: BigFloat}(ps::Matrix{T}, j::Int, coef::Vector{T})
+function ∂MSE_∂j{T <: Real}(ps::Matrix{T}, j::Int, coef::Vector{T})
     # Gradient wrt coeficient at index j | given points
     degree = len(coef)
-    target = [convert(BigFloat, (i == j)) for i in 1:degree]
+    target = [convert(Real, (i == j)) for i in 1:degree]
     others = 1.0 .- target
 
     x⃗ = ps * [1, 0]
@@ -33,7 +33,7 @@ function ∂MSE_∂j{T <: BigFloat}(ps::Matrix{T}, j::Int, coef::Vector{T})
     mean((-2 .* K .* A) .+ (2 * (A .^2) .* coef[j]))
 end
 
-function step_gradient{T <: BigFloat}(ps::Matrix{T}, coef::Vector{T}, γ::T)
+function step_gradient{T <: Real}(ps::Matrix{T}, coef::Vector{T}, γ::T)
     ∇coef::Vector{T} = []
     for (j, _) in enumerate(coef)
         ∇ = ∂MSE_∂j(ps, j, coef)
@@ -45,7 +45,7 @@ function step_gradient{T <: BigFloat}(ps::Matrix{T}, coef::Vector{T}, γ::T)
     convert(Vector{T}, [coef[i] - Δ for (i, Δ) in enumerate(Δcoef)])
 end
 
-function runner{T <: BigFloat}(ps::Matrix{T}, coef::Vector{T}, γ::T, steps::Int)
+function runner{T <: Real}(ps::Matrix{T}, coef::Vector{T}, γ::T, steps::Int)
     for i in 1:steps
         if Inf in coef || NaN in coef
             return i, coef
@@ -56,11 +56,11 @@ function runner{T <: BigFloat}(ps::Matrix{T}, coef::Vector{T}, γ::T, steps::Int
 end
 
 function main()
-    points = convert(Matrix{BigFloat},
+    points = convert(Matrix{Real},
                      DataFrames.readtable("./yield.csv", header=false))
 
-    γ::BigFloat = 0.0001
-    Z = convert(Vector{BigFloat}, rand((20)))
+    γ::Real = 0.0001
+    Z = convert(Vector{Real}, rand((20)))
     steps = 1000
     for degree = 1:7
         s, coef = runner(points, Z[1:degree], γ, steps)
