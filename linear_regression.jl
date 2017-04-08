@@ -36,7 +36,7 @@ end
 
 function step_gradient{T <: Real}(ps::Matrix{T}, coef::Vector{T}, γ::T)
     ∇coef = [∂MSE_∂j(ps, j, coef) for (j, _) in enumerate(coef)]
-    Δcoef = map((Δ) -> Δ == NaN ? 0 : Δ, γ * ∇coef)
+    Δcoef = map((Δ) -> Δ == NaN ? 0 : Δ, γ * rand() * ∇coef)
 
     convert(Vector{T}, [coef[i] - Δ for (i, Δ) in enumerate(Δcoef)])
 end
@@ -53,14 +53,14 @@ function runner{T <: Real}(ps::Matrix{T}, coef::Vector{T}, γ::T, steps::Int)
 end
 
 function main()
-    points = convert(Matrix{Real}, DataFrames.readtable("./data.csv", header=false))
+    points = convert(Matrix{Real}, DataFrames.readtable("./yield.csv", header=false))
     γ      = 0.0001
     steps  = 1000
-    degree = 2
-    coef   = convert(Vector{Real}, zeros(degree))
-    println("Starting gradient descent at coef = $(coef), MSE = $(MSE(points, coef))")
-    coef   = runner(points, coef, γ, steps)
-    println("After $(steps) iterations $(coef), MSE = $(MSE(points, coef))")
+    for degree = 2:12
+        coef   = runner(points, convert(Vector{Real}, zeros(degree)), γ, steps)
+        println("After $(steps) iterations MSE = $(MSE(points, coef)) \n::$(coef)") 
+        coef   = convert(Vector{Real}, zeros(degree))
+    end
 end
 
 main()
