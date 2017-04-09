@@ -5,6 +5,7 @@ using DataFrames
 len(V::Vector) = size(V)[1]
 
 function MSE{T <: Real}(ps::Matrix{T}, coef::Vector{T})
+    # Mean Squared Error
     degree = len(coef)
 
     x⃗ = ps * [1, 0]
@@ -15,7 +16,7 @@ function MSE{T <: Real}(ps::Matrix{T}, coef::Vector{T})
 end
 
 function ∂MSE_∂j{T <: Real}(ps::Matrix{T}, j::Int, coef::Vector{T})
-    # Gradient wrt coeficient at index j | given points
+    # Gradient of MSE wrt coeficient at index j | given points
     degree = len(coef)
     target = [convert(Real, (i == j)) for i in 1:degree]
     others = 1.0 .- target
@@ -42,6 +43,7 @@ end
 function runner{T <: Real}(ps::Matrix{T}, coef::Vector{T}, γ::T, steps::Int)
     for i in 1:steps
         if Inf in coef || NaN in coef
+            # Break if divergent
             return i, coef
         end
         coef = step_gradient(ps, coef, γ)
